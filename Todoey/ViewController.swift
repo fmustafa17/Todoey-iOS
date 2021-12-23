@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+ 
 enum Constants {
     static let ToDoListArray = "ToDoListArray"
 }
@@ -26,6 +26,8 @@ class ViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        loadItems()
     }
 
     @IBAction func addButtonPressed(_ sender: Any) {
@@ -53,18 +55,6 @@ class ViewController: UITableViewController {
         present(alertController, animated: true)
     }
 
-    func saveItems() {
-        let encoder = PropertyListEncoder()
-
-        do {
-            let data = try encoder.encode(self.itemArray)
-            try data.write(to: self.dataFilePath!)
-        } catch {
-            print("Error encoding item array, \(error)")
-        }
-
-        self.tableView.reloadData()
-    }
 }
 
 // MARK: - UITableViewDelegate
@@ -91,6 +81,33 @@ extension ViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
+}
+
+// MARK: - Model Manipulation Methods
+extension ViewController {
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+
+        do {
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+
+        self.tableView.reloadData()
+    }
+
+    func loadItems() {
+        if let data = try? Data(contentsOf: dataFilePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([ToDoItem].self, from: data)
+            } catch {
+                print("Couldn't decode")
+            }
+        }
+    }
 }
 
 // MARK: - UITableViewDataSource
