@@ -25,6 +25,8 @@ class ViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let dataFilePath = FileManager.default.urls(for: .documentDirectory,
+                                                       in: .userDomainMask)
 
     }
 
@@ -39,7 +41,6 @@ class ViewController: UITableViewController {
 
             self.itemArray.append(newItem)
             self.userDefaults.set(self.itemArray, forKey: Constants.ToDoListArray)
-            
         }
 
         alertController.addTextField { (alertTextField) in
@@ -102,7 +103,6 @@ extension ViewController {
 // MARK: - UITextFieldDelegate
 extension ViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        if ((range.location == 4 && range.length == 0) || (range.location == 5 && range.length == 1)) {
         if ((textField.text?.count)! > 0) {
             self.alertController.actions[0].isEnabled = true
         } else {
