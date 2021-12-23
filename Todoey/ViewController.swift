@@ -20,14 +20,12 @@ class ViewController: UITableViewController {
     ]
     var alertController: UIAlertController!
     var textField: UITextField!
-    var userDefaults = UserDefaults.standard
+
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory,
+                                                in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        let dataFilePath = FileManager.default.urls(for: .documentDirectory,
-                                                       in: .userDomainMask)
-
     }
 
     @IBAction func addButtonPressed(_ sender: Any) {
@@ -40,7 +38,8 @@ class ViewController: UITableViewController {
             let newItem = ToDoItem(title: newItemText, isDone: false)
 
             self.itemArray.append(newItem)
-            self.userDefaults.set(self.itemArray, forKey: Constants.ToDoListArray)
+
+            self.saveItems()
         }
 
         alertController.addTextField { (alertTextField) in
@@ -52,6 +51,19 @@ class ViewController: UITableViewController {
         alertController.addAction(addAction)
         self.alertController.actions[0].isEnabled = false
         present(alertController, animated: true)
+    }
+
+    func saveItems() {
+        let encoder = PropertyListEncoder()
+
+        do {
+            let data = try encoder.encode(self.itemArray)
+            try data.write(to: self.dataFilePath!)
+        } catch {
+            print("Error encoding item array, \(error)")
+        }
+
+        self.tableView.reloadData()
     }
 }
 
@@ -66,6 +78,8 @@ extension ViewController {
         let cell = tableView.cellForRow(at: indexPath)
 
         itemArray[indexPath.row].isDone = !itemArray[indexPath.row].isDone
+
+        saveItems()
 
         if cell?.accessoryType == UITableViewCell.AccessoryType.none {
             cell?.accessoryType = .checkmark
